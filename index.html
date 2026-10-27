@@ -1,0 +1,1552 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conecta+ | Comunidade que ajuda</title>
+
+
+ 
+  .chat-modal {
+    position: fixed;
+    inset: 0;
+    background: #17122c99;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 30;
+  }
+  
+  .chat-modal.open {
+    display: flex;
+  }
+  
+  .chat-box {
+    width: 100%;
+    max-width: 440px;
+    height: min(600px, 85vh);
+    background: white;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .chat-header {
+    background: #6941c6;
+    color: white;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+  .chat-header p {
+    font-size: 12px;
+    margin-top: 5px;
+    opacity: .85;
+  }
+  
+  .chat-header button {
+    background: #ffffff25;
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+  
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #f7f7fb;
+  }
+  
+  .chat-message {
+    max-width: 85%;
+    background: white;
+    border: 1px solid #e9e6f1;
+    border-radius: 12px 12px 12px 3px;
+    padding: 10px 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    align-self: flex-start;
+  }
+  
+  .chat-message.mine {
+    background: #6941c6;
+    color: white;
+    border-color: #6941c6;
+    border-radius: 12px 12px 3px 12px;
+    align-self: flex-end;
+  }
+  
+  .chat-message small {
+    display: block;
+    font-size: 10px;
+    opacity: .75;
+    margin-bottom: 4px;
+  }
+  
+  .chat-form {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid #e9e6f1;
+  }
+  
+  .chat-form input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #e9e6f1;
+    border-radius: 10px;
+    padding: 12px;
+    outline: none;
+  }
+  
+  .chat-form button {
+    background: #6941c6;
+    color: white;
+    border: 0;
+    border-radius: 10px;
+    padding: 0 16px;
+  }
+  
+  .chat-btn {
+    border: 1px solid #dcd2ff;
+    background: #f5f1ff;
+    color: #6941c6;
+    border-radius: 9px;
+    padding: 9px 12px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .chat-empty {
+    text-align: center;
+    color: #77758a;
+    margin: auto;
+    font-size: 13px;
+  }  
+
+  <style>
+    :root {
+      --roxo: #6941c6;
+      --roxo-escuro: #4f2da3;
+      --fundo: #f7f7fb;
+      --texto: #252338;
+      --cinza: #77758a;
+      --borda: #e9e6f1;
+      --verde: #16866a;
+      --branco: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .layout {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 245px;
+      background: var(--branco);
+      border-right: 1px solid var(--borda);
+      padding: 28px 18px;
+      position: fixed;
+      inset: 0 auto 0 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 5;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 38px 8px;
+    }
+
+    .logo-icon {
+      background: var(--roxo);
+      color: white;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    .logo h1 {
+      font-size: 23px;
+      letter-spacing: -1px;
+    }
+
+    .logo h1 span {
+      color: var(--roxo);
+    }
+
+    .menu-label {
+      color: var(--cinza);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin: 0 0 12px 10px;
+    }
+
+    .menu {
+      display: grid;
+      gap: 7px;
+    }
+
+    .menu button {
+      width: 100%;
+      display: flex;
+      gap: 13px;
+      align-items: center;
+      border: 0;
+      background: transparent;
+      color: #68667a;
+      padding: 14px;
+      border-radius: 12px;
+      text-align: left;
+      transition: .2s;
+    }
+
+    .menu button:hover,
+    .menu button.active {
+      background: #f0ebff;
+      color: var(--roxo);
+    }
+
+    .menu .emoji {
+      width: 23px;
+      font-size: 19px;
+      text-align: center;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      background: #f5f1ff;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .sidebar-bottom p {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #615a76;
+      margin: 8px 0 12px;
+    }
+
+    .sidebar-bottom button {
+      border: 0;
+      background: var(--roxo);
+      color: white;
+      border-radius: 9px;
+      padding: 10px;
+      width: 100%;
+    }
+
+    main {
+      width: calc(100% - 245px);
+      margin-left: 245px;
+      padding: 28px 36px 50px;
+      max-width: 1500px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .welcome small {
+      color: var(--cinza);
+      display: block;
+      margin-bottom: 7px;
+    }
+
+    .welcome h2 {
+      font-size: 27px;
+      letter-spacing: -.7px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 43px;
+      height: 43px;
+      border-radius: 50%;
+      background: #e5ddff;
+      color: var(--roxo);
+      font-weight: bold;
+    }
+
+    .primary {
+      border: 0;
+      background: var(--roxo);
+      color: white;
+      border-radius: 11px;
+      padding: 12px 17px;
+      font-weight: bold;
+      transition: .2s;
+    }
+
+    .primary:hover {
+      background: var(--roxo-escuro);
+    }
+
+    .hero {
+      background: linear-gradient(115deg, #6840c5, #9676e8);
+      border-radius: 22px;
+      padding: 30px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+
+    .hero-content {
+      max-width: 590px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      padding: 7px 11px;
+      background: #ffffff25;
+      border-radius: 30px;
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+
+    .hero h2 {
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      line-height: 1.7;
+      color: #f1edff;
+      margin-bottom: 20px;
+    }
+
+    .hero button {
+      background: white;
+      color: var(--roxo);
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 17px;
+      font-weight: bold;
+    }
+
+    .hero-art {
+      font-size: clamp(65px, 9vw, 115px);
+      padding: 10px;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 17px;
+    }
+
+    .section-heading h2 {
+      font-size: 20px;
+    }
+
+    .section-heading p {
+      color: var(--cinza);
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .stat-icon {
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: #f0ebff;
+      font-size: 21px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card strong {
+      display: block;
+      font-size: 27px;
+      margin-bottom: 7px;
+    }
+
+    .stat-card span {
+      font-size: 13px;
+      color: var(--cinza);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .search {
+      flex: 1;
+      position: relative;
+    }
+
+    .search span {
+      position: absolute;
+      left: 14px;
+      top: 13px;
+    }
+
+    .search input {
+      width: 100%;
+      border: 1px solid var(--borda);
+      background: white;
+      border-radius: 11px;
+      padding: 13px 14px 13px 42px;
+      outline: none;
+    }
+
+    .search input:focus,
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: var(--roxo);
+    }
+
+    .filters {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .filter {
+      background: white;
+      color: #68667a;
+      border: 1px solid var(--borda);
+      border-radius: 30px;
+      padding: 9px 14px;
+      font-size: 13px;
+    }
+
+    .filter.active {
+      color: white;
+      background: var(--roxo);
+      border-color: var(--roxo);
+    }
+
+    .posts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 17px;
+    }
+
+    .post {
+      background: white;
+      border: 1px solid var(--borda);
+      border-radius: 17px;
+      padding: 20px;
+      min-width: 0;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .post:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px #30205c0b;
+    }
+
+    .post-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .category-icon {
+      display: grid;
+      place-items: center;
+      width: 47px;
+      height: 47px;
+      background: #f2eeff;
+      border-radius: 14px;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .category-tag {
+      font-size: 11px;
+      background: #f1edff;
+      color: var(--roxo);
+      border-radius: 20px;
+      padding: 7px 10px;
+    }
+
+    .post h3 {
+      font-size: 17px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .post-description {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #737185;
+      margin-bottom: 17px;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .post-author {
+      font-size: 12px;
+      color: var(--cinza);
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--borda);
+      margin-bottom: 14px;
+    }
+
+    .post-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .interest-count {
+      font-size: 12px;
+      color: var(--cinza);
+    }
+
+    .interest-btn {
+      border: 1px solid #dcd2ff;
+      background: white;
+      color: var(--roxo);
+      border-radius: 9px;
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .interest-btn.selected {
+      background: #f0ebff;
+    }
+
+    .delete-btn {
+      background: none;
+      border: 0;
+      color: #c04454;
+      margin-left: 9px;
+      font-size: 12px;
+    }
+
+    .empty {
+      background: white;
+      border: 1px dashed #d8d2e8;
+      padding: 40px 20px;
+      text-align: center;
+      border-radius: 16px;
+      color: var(--cinza);
+      grid-column: 1 / -1;
+    }
+
+    .empty strong {
+      display: block;
+      color: var(--texto);
+      margin: 12px 0 7px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid var(--borda);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .panel h3 {
+      margin-bottom: 8px;
+    }
+
+    .muted {
+      color: var(--cinza);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .profile-header {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .profile-avatar {
+      width: 76px;
+      height: 76px;
+      display: grid;
+      place-items: center;
+      background: #e9e1ff;
+      color: var(--roxo);
+      border-radius: 22px;
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .profile-details {
+      display: grid;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--borda);
+      border-radius: 10px;
+      outline: none;
+      background: white;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: #17122c99;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+      z-index: 20;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 25px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .close {
+      border: 0;
+      background: #f3f1f8;
+      border-radius: 9px;
+      width: 35px;
+      height: 35px;
+      font-size: 20px;
+    }
+
+    .modal form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 4px;
+    }
+
+    .secondary {
+      border: 1px solid var(--borda);
+      background: white;
+      border-radius: 10px;
+      padding: 11px 15px;
+    }
+
+    .notice {
+      background: #fff7e6;
+      border: 1px solid #f3e1b4;
+      color: #7c5b16;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 18px;
+    }
+
+    .mobile-nav {
+      display: none;
+    }
+
+    footer {
+      color: var(--cinza);
+      text-align: center;
+      padding: 32px 10px 0;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1050px) {
+      main {
+        padding: 25px 22px 40px;
+      }
+
+      .posts {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-art {
+        font-size: 70px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .sidebar {
+        display: none;
+      }
+
+      main {
+        width: 100%;
+        margin-left: 0;
+        padding: 20px 15px 100px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .welcome h2 {
+        font-size: 22px;
+      }
+
+      .top-actions .primary {
+        padding: 11px;
+        font-size: 12px;
+      }
+
+      .hero {
+        padding: 23px;
+        border-radius: 17px;
+      }
+
+      .hero-art {
+        display: none;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px;
+      }
+
+      .stat-icon {
+        margin: 0;
+        flex-shrink: 0;
+      }
+
+      .stat-card strong {
+        font-size: 22px;
+        margin-bottom: 4px;
+      }
+
+      .stat-card .stat-text {
+        display: block;
+      }
+
+      .toolbar {
+        flex-direction: column;
+      }
+
+      .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid var(--borda);
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+        z-index: 10;
+      }
+
+      .mobile-nav button {
+        background: transparent;
+        border: 0;
+        color: var(--cinza);
+        display: grid;
+        gap: 4px;
+        place-items: center;
+        padding: 7px 3px;
+        font-size: 11px;
+      }
+
+      .mobile-nav button.active {
+        color: var(--roxo);
+        font-weight: bold;
+      }
+
+      .mobile-nav span {
+        font-size: 20px;
+      }
+
+      .profile-header {
+        align-items: flex-start;
+      }
+    }
+  </style>
+  
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#167b58">
+
+</head>
+
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">+</div>
+        <h1>Conecta<span>+</span></h1>
+      </div>
+
+      <p class="menu-label">MENU PRINCIPAL</p>
+
+      <nav class="menu">
+        <button class="active" data-page="inicio">
+          <span class="emoji">🏠</span> Explorar
+        </button>
+        <button data-page="impacto">
+          <span class="emoji">💜</span> Meu impacto
+        </button>
+        <button data-page="perfil">
+          <span class="emoji">👤</span> Meu perfil
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <strong>💜 Faça a diferença</strong>
+        <p>Pequenas atitudes podem transformar uma comunidade inteira.</p>
+        <button id="sideCreate">Compartilhar ajuda</button>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div class="welcome">
+          <small>CONEXÃO QUE TRANSFORMA</small>
+          <h2 id="pageTitle">Olá! Vamos ajudar? 👋</h2>
+        </div>
+
+        <div class="top-actions">
+          <button class="primary" id="topCreate">+ Nova publicação</button>
+          <div class="avatar" id="smallAvatar">U</div>
+        </div>
+      </header>
+
+      <section class="page active" id="page-inicio">
+        <div class="hero">
+          <div class="hero-content">
+            <span class="hero-tag">🌎 Comunidade colaborativa</span>
+            <h2>Juntos, podemos fazer mais.</h2>
+            <p>
+              Compartilhe o que você pode oferecer, encontre ajuda
+              e transforme boas intenções em atitudes.
+            </p>
+            <button id="heroCreate">Quero ajudar +</button>
+          </div>
+          <div class="hero-art">🤝💜</div>
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <h2>Comunidade em ação</h2>
+            <p>Conheça as oportunidades de ajudar.</p>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-icon">🤝</div>
+            <div class="stat-text">
+              <strong id="statPosts">0</strong>
+              <span>Publicações disponíveis</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">💜</div>
+            <div class="stat-text">
+              <strong id="statInterests">0</strong>
+              <span>Interesses demonstrados</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🌱</div>
+            <div class="stat-text">
+              <strong id="statMine">0</strong>
+              <span>Publicações criadas por você</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <h2>Encontre uma oportunidade</h2>
+            <p>Pesquise por algo que você precisa ou pode oferecer.</p>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div class="search">
+            <span>🔎</span>
+            <input id="searchInput" type="search"
+              placeholder="Buscar publicações...">
+          </div>
+        </div>
+
+        <div class="filters" id="filters">
+          <button class="filter active" data-category="Todas">Todas</button>
+          <button class="filter" data-category="Doações">🎁 Doações</button>
+          <button class="filter" data-category="Serviços">🛠️ Serviços</button>
+          <button class="filter" data-category="Aulas">📚 Aulas</button>
+          <button class="filter" data-category="Voluntariado">💚 Voluntariado</button>
+        </div>
+
+        <div class="posts" id="postsList"></div>
+      </section>
+
+      <section class="page" id="page-impacto">
+        <div class="section-heading">
+          <div>
+            <h2>Meu impacto 💜</h2>
+            <p>Acompanhe sua participação na comunidade.</p>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-icon">📣</div>
+            <div class="stat-text">
+              <strong id="impactMine">0</strong>
+              <span>Publicações criadas</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🙋</div>
+            <div class="stat-text">
+              <strong id="impactInterest">0</strong>
+              <span>Interesses demonstrados</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🌍</div>
+            <div class="stat-text">
+              <strong id="impactAvailable">0</strong>
+              <span>Oportunidades na comunidade</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>🌱 Sua participação importa</h3>
+          <p class="muted">
+            Cada publicação pode aproximar pessoas que precisam de ajuda
+            de pessoas dispostas a colaborar. Continue compartilhando
+            oportunidades e acompanhando as publicações.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h3>📊 Sobre os números</h3>
+          <p class="muted">
+            Os indicadores desta versão são calculados a partir das
+            publicações e dos interesses registrados neste navegador.
+            Eles não representam pessoas atendidas ou doações concluídas.
+          </p>
+        </div>
+      </section>
+
+      <section class="page" id="page-perfil">
+        <div class="section-heading">
+          <div>
+            <h2>Meu perfil 👤</h2>
+            <p>Personalize suas informações.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="profile-header">
+            <div class="profile-avatar" id="profileAvatar">U</div>
+            <div>
+              <h2 id="profileNameDisplay">Usuário Conecta+</h2>
+              <p class="muted">Membro da comunidade</p>
+            </div>
+          </div>
+
+          <form id="profileForm" class="profile-details">
+            <div class="field">
+              <label for="profileName">Seu nome</label>
+              <input id="profileName" maxlength="50"
+                placeholder="Digite seu nome" required>
+            </div>
+
+            <div class="field">
+              <label for="profileBio">Sobre você</label>
+              <textarea id="profileBio" maxlength="250"
+                placeholder="Conte como você gostaria de ajudar..."></textarea>
+            </div>
+
+            <button type="submit" class="primary">Salvar perfil</button>
+          </form>
+
+          <div class="notice">
+            Este perfil é apenas local. Não existe uma conta real nem
+            autenticação nesta versão.
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        Conecta+ © 2026 — Uma comunidade melhor começa com você.
+      </footer>
+    </main>
+  </div>
+
+  <nav class="mobile-nav">
+    <button class="active" data-page="inicio">
+      <span>🏠</span>Explorar
+    </button>
+    <button data-page="impacto">
+      <span>💜</span>Impacto
+    </button>
+    <button data-page="perfil">
+      <span>👤</span>Perfil
+    </button>
+  </nav>
+
+  <div class="modal" id="postModal" role="dialog"
+    aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Nova publicação</h2>
+        <button class="close" id="closeModal" aria-label="Fechar">×</button>
+      </div>
+
+      <form id="postForm">
+        <div class="field">
+          <label for="postTitle">Título da publicação</label>
+          <input id="postTitle" maxlength="70" required
+            placeholder="Ex.: Doação de roupas">
+        </div>
+
+        <div class="field">
+          <label for="postCategory">Categoria</label>
+          <select id="postCategory" required>
+            <option value="Doações">🎁 Doações</option>
+            <option value="Serviços">🛠️ Serviços</option>
+            <option value="Aulas">📚 Aulas</option>
+            <option value="Voluntariado">💚 Voluntariado</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="postDescription">Descrição</label>
+          <textarea id="postDescription" maxlength="500" required
+            placeholder="Explique como você pode ajudar ou o que precisa..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="secondary" id="cancelModal">
+            Cancelar
+          </button>
+          <button type="submit" class="primary">Publicar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_POSTS = "conectaPlusPostsV1";
+    const STORAGE_PROFILE = "conectaPlusProfileV1";
+    const STORAGE_INTERESTS = "conectaPlusInterestsV1";
+
+    const examples = [
+      {
+        id: "ex1",
+        title: "Roupas em bom estado",
+        category: "Doações",
+        description: "Tenho algumas roupas limpas e em bom estado para doar a quem estiver precisando.",
+        author: "Mariana",
+        mine: false,
+        interests: 3
+      },
+      {
+        id: "ex2",
+        title: "Ajuda com tarefas escolares",
+        category: "Aulas",
+        description: "Posso ajudar estudantes com dúvidas em matemática e organização dos estudos.",
+        author: "Lucas",
+        mine: false,
+        interests: 5
+      },
+      {
+        id: "ex3",
+        title: "Mutirão de limpeza",
+        category: "Voluntariado",
+        description: "Vamos organizar uma ação de cuidado com os espaços comuns da comunidade.",
+        author: "Projeto Comunidade",
+        mine: false,
+        interests: 7
+      },
+      {
+        id: "ex4",
+        title: "Ajuda com pequenos reparos",
+        category: "Serviços",
+        description: "Posso orientar sobre pequenos consertos domésticos e manutenção básica.",
+        author: "Rafael",
+        mine: false,
+        interests: 2
+      }
+    ];
+
+    let posts = loadPosts();
+    let profile = loadProfile();
+    let interests = loadInterests();
+    let currentCategory = "Todas";
+
+    function loadPosts() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_POSTS));
+        if (Array.isArray(saved)) return saved;
+      } catch (error) {
+        console.warn("Não foi possível carregar as publicações.", error);
+      }
+      return examples.map(post => ({ ...post }));
+    }
+
+    function loadProfile() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_PROFILE));
+        if (saved && typeof saved === "object") return saved;
+      } catch (error) {
+        console.warn("Não foi possível carregar o perfil.", error);
+      }
+      return { name: "Usuário Conecta+", bio: "" };
+    }
+
+    function loadInterests() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_INTERESTS));
+        if (saved && typeof saved === "object" && !Array.isArray(saved)) {
+          return saved;
+        }
+      } catch (error) {
+        console.warn("Não foi possível carregar os interesses.", error);
+      }
+      return {};
+    }
+
+    function savePosts() {
+      localStorage.setItem(STORAGE_POSTS, JSON.stringify(posts));
+    }
+
+    function saveInterests() {
+      localStorage.setItem(STORAGE_INTERESTS, JSON.stringify(interests));
+    }
+
+    function saveProfile() {
+      localStorage.setItem(STORAGE_PROFILE, JSON.stringify(profile));
+    }
+
+    function categoryEmoji(category) {
+      const icons = {
+        "Doações": "🎁",
+        "Serviços": "🛠️",
+        "Aulas": "📚",
+        "Voluntariado": "💚"
+      };
+      return icons[category] || "🤝";
+    }
+
+    function safeText(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[character]);
+    }
+
+    function renderPosts() {
+      const list = document.getElementById("postsList");
+      const search = document.getElementById("searchInput")
+        .value.trim().toLowerCase();
+
+      const filtered = posts.filter(post => {
+        const matchesCategory =
+          currentCategory === "Todas" ||
+          post.category === currentCategory;
+
+        const searchable = (
+          post.title + " " + post.description + " " + post.author
+        ).toLowerCase();
+
+        return matchesCategory && searchable.includes(search);
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="empty">
+            <div style="font-size:35px">🔎</div>
+            <strong>Nenhuma publicação encontrada</strong>
+            Tente outra busca ou escolha uma categoria diferente.
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = filtered.map(post => {
+        const selected = Boolean(interests[post.id]);
+        const count = Number(post.interests) || 0;
+
+        return `
+          <article class="post">
+            <div class="post-top">
+              <div class="category-icon">${categoryEmoji(post.category)}</div>
+              <span class="category-tag">${safeText(post.category)}</span>
+            </div>
+
+            <h3>${safeText(post.title)}</h3>
+            <p class="post-description">${safeText(post.description)}</p>
+            <div class="post-author">
+              Publicado por ${safeText(post.author)}
+            </div>
+
+            <div class="post-bottom">
+              <span class="interest-count">
+                💜 ${count} interesse(s)
+              </span>
+
+              <div>
+                <button
+                  class="interest-btn ${selected ? "selected" : ""}"
+                  data-interest="${safeText(post.id)}"
+                  aria-pressed="${selected}">
+                  ${selected ? "✓ Tenho interesse" : "Tenho interesse"}
+                </button>
+
+                ${post.mine ? `
+                  <button class="delete-btn"
+                    data-delete="${safeText(post.id)}">
+                    Excluir
+                  </button>
+                ` : ""}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderStats() {
+      const mine = posts.filter(post => post.mine).length;
+      const totalInterests = posts.reduce(
+        (sum, post) => sum + (Number(post.interests) || 0), 0
+      );
+
+      document.getElementById("statPosts").textContent = posts.length;
+      document.getElementById("statInterests").textContent = totalInterests;
+      document.getElementById("statMine").textContent = mine;
+
+      document.getElementById("impactMine").textContent = mine;
+      document.getElementById("impactInterest").textContent =
+        Object.values(interests).filter(Boolean).length;
+      document.getElementById("impactAvailable").textContent = posts.length;
+    }
+
+    function renderProfile() {
+      const initial = (profile.name || "U").trim().charAt(0).toUpperCase() || "U";
+
+      document.getElementById("smallAvatar").textContent = initial;
+      document.getElementById("profileAvatar").textContent = initial;
+      document.getElementById("profileNameDisplay").textContent =
+        profile.name || "Usuário Conecta+";
+      document.getElementById("profileName").value = profile.name || "";
+      document.getElementById("profileBio").value = profile.bio || "";
+    }
+
+    function renderAll() {
+      renderPosts();
+      renderStats();
+      renderProfile();
+    }
+
+    function showPage(pageName) {
+      document.querySelectorAll(".page").forEach(page => {
+        page.classList.toggle("active", page.id === "page-" + pageName);
+      });
+
+      document.querySelectorAll("[data-page]").forEach(button => {
+        button.classList.toggle("active", button.dataset.page === pageName);
+      });
+
+      const titles = {
+        inicio: "Olá! Vamos ajudar? 👋",
+        impacto: "Meu impacto 💜",
+        perfil: "Meu perfil 👤"
+      };
+
+      document.getElementById("pageTitle").textContent =
+        titles[pageName] || "Conecta+";
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function openModal() {
+      document.getElementById("postModal").classList.add("open");
+      document.getElementById("postTitle").focus();
+    }
+
+    function closeModal() {
+      document.getElementById("postModal").classList.remove("open");
+    }
+
+    document.querySelectorAll("[data-page]").forEach(button => {
+      button.addEventListener("click", () => showPage(button.dataset.page));
+    });
+
+    document.getElementById("topCreate").addEventListener("click", openModal);
+    document.getElementById("sideCreate").addEventListener("click", openModal);
+    document.getElementById("heroCreate").addEventListener("click", openModal);
+
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    document.getElementById("cancelModal").addEventListener("click", closeModal);
+
+    document.getElementById("postModal").addEventListener("click", event => {
+      if (event.target.id === "postModal") closeModal();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeModal();
+    });
+
+    document.getElementById("searchInput").addEventListener("input", renderPosts);
+
+    document.getElementById("filters").addEventListener("click", event => {
+      const button = event.target.closest("[data-category]");
+      if (!button) return;
+
+      currentCategory = button.dataset.category;
+
+      document.querySelectorAll(".filter").forEach(filter => {
+        filter.classList.toggle("active", filter === button);
+      });
+
+      renderPosts();
+    });
+
+    document.getElementById("postsList").addEventListener("click", event => {
+      const interestButton = event.target.closest("[data-interest]");
+      const deleteButton = event.target.closest("[data-delete]");
+
+      if (interestButton) {
+        const id = interestButton.dataset.interest;
+        const post = posts.find(item => item.id === id);
+        if (!post) return;
+
+        if (interests[id]) {
+          interests[id] = false;
+          post.interests = Math.max(0, (Number(post.interests) || 0) - 1);
+        } else {
+          interests[id] = true;
+          post.interests = (Number(post.interests) || 0) + 1;
+        }
+
+        saveInterests();
+        savePosts();
+        renderAll();
+      }
+
+      if (deleteButton) {
+        const id = deleteButton.dataset.delete;
+        const confirmed = confirm("Deseja excluir esta publicação?");
+        if (!confirmed) return;
+
+        posts = posts.filter(post => post.id !== id);
+        delete interests[id];
+
+        savePosts();
+        saveInterests();
+        renderAll();
+      }
+    });
+
+    document.getElementById("postForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const title = document.getElementById("postTitle").value.trim();
+      const category = document.getElementById("postCategory").value;
+      const description =
+        document.getElementById("postDescription").value.trim();
+
+      if (!title || !description) {
+        alert("Preencha o título e a descrição.");
+        return;
+      }
+
+      posts.unshift({
+        id: "post_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
+        title,
+        category,
+        description,
+        author: profile.name || "Usuário Conecta+",
+        mine: true,
+        interests: 0
+      });
+
+      savePosts();
+      document.getElementById("postForm").reset();
+      currentCategory = "Todas";
+
+      document.querySelectorAll(".filter").forEach(button => {
+        button.classList.toggle("active", button.dataset.category === "Todas");
+      });
+
+      document.getElementById("searchInput").value = "";
+      closeModal();
+      renderAll();
+      showPage("inicio");
+    });
+
+    document.getElementById("profileForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const name = document.getElementById("profileName").value.trim();
+      const bio = document.getElementById("profileBio").value.trim();
+
+      if (!name) {
+        alert("Digite seu nome.");
+        return;
+      }
+
+      profile = { name, bio };
+      saveProfile();
+
+      alert("Perfil salvo neste navegador!");
+      renderAll();
+    });
+
+    renderAll();
+  </script>
+  
+<script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+          .catch((error) => {
+            console.error("Erro ao registrar o aplicativo:", error);
+          });
+      });
+    }
+  </script>
+  
+</body>
+</html>
